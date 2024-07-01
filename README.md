@@ -1,16 +1,25 @@
-# chat_gpt_client_app
+# chainformation
 
-A new Flutter project.
+Use Flutter Stable (stable working with 3.19.1)
+
+## Environment build script
+Run from project folder
+sh ../build.sh prod
+sh ../build.sh rollout
+sh ../build.sh stage
 
 ## Getting Started
+flutter pub get
+flutter pub run intl_utils:generate
+flutter packages pub run build_runner build --delete-conflicting-outputs
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+keytool -list -v \
+-alias key0 -keystore releasekey.keystore
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+App Links server configuration:
+Android:
+https://hostname/.well-known/assetlinks.json
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+iOS:
+https://hostname/.well-known/apple-app-site-association
