@@ -1,16 +1,16 @@
-import 'dart:io';
-import 'package:chat_gpt_client_app/app_states.dart';
-import 'package:flutter/material.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'dart:core';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
 
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
+
+import '../app_states.dart';
+import '../database.dart';
 import 'app_themes.dart';
 import 'chat_widgets.dart';
 import 'drawer_widgets.dart';
-
-import 'package:chat_gpt_client_app/database.dart';
-import 'package:provider/provider.dart';
 
 void main() async {
   if (isDesktop()) {
@@ -39,9 +39,9 @@ bool isDesktop() {
 }
 
 class MyApp extends StatefulWidget {
-  final Database db;
 
   const MyApp({super.key, required this.db});
+  final Database db;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -50,8 +50,8 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   late bool isDark;
 
-  void changeAppTheme() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  Future<void> changeAppTheme() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
       isDark = !isDark;
       prefs.setBool('isDark', isDark);
@@ -87,21 +87,21 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<bool>? loadSnapshot() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getBool('isDark') ?? false;
   }
 }
 
 class HomePage extends StatefulWidget {
-  final Database db;
-  final VoidCallback changeAppTheme;
-  final bool isDark;
 
   const HomePage(
       {super.key,
       required this.changeAppTheme,
       required this.isDark,
       required this.db});
+  final Database db;
+  final VoidCallback changeAppTheme;
+  final bool isDark;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -118,8 +118,8 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    double bottomInset = MediaQuery.of(context).viewInsets.bottom;
-    double topPadding = MediaQuery.of(context).viewPadding.top;
+    final double bottomInset = MediaQuery.of(context).viewInsets.bottom;
+    final double topPadding = MediaQuery.of(context).viewPadding.top;
 
     return Scaffold(
         backgroundColor: Theme.of(context).colorScheme.surface,

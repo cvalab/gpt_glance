@@ -2,10 +2,6 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 
 class AppBarWidget extends StatefulWidget {
-  final VoidCallback changeAppTheme;
-  final bool isDark;
-  final VoidCallback toggleMenuCallback;
-  final String chatName;
 
   const AppBarWidget({
     super.key,
@@ -14,6 +10,10 @@ class AppBarWidget extends StatefulWidget {
     required this.toggleMenuCallback,
     required this.chatName,
   });
+  final VoidCallback changeAppTheme;
+  final bool isDark;
+  final VoidCallback toggleMenuCallback;
+  final String chatName;
 
   @override
   State<AppBarWidget> createState() => _AppBarState();

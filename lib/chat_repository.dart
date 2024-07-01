@@ -1,9 +1,9 @@
 import 'package:sqflite/sqflite.dart';
 
 class ChatRepository {
-  final Database db;
 
   ChatRepository(this.db);
+  final Database db;
 
   Future<int> createChat(String name) async {
     final id = await db.insert('chat_table', {'name': name});
@@ -24,7 +24,7 @@ class ChatRepository {
     await db.execute(messageTable);
   }
 
-  Future<List<Map<String, dynamic>>> getChats() async {
-    return await db.query('chat_table');
+  Future<List<Map<String, dynamic>>> getChats(){
+    return db.query('chat_table');
   }
 }

@@ -1,22 +1,16 @@
-import 'package:chat_gpt_client_app/app_states.dart';
-import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
 import 'dart:core';
+
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:sqflite/sqflite.dart';
+
+import '../app_states.dart';
+import '../chat_repository.dart';
+import '../message_repository.dart';
 import 'app_bar_widgets.dart';
 import 'input_menu_widgets.dart';
 
-import 'package:chat_gpt_client_app/chat_repository.dart';
-import 'package:chat_gpt_client_app/message_repository.dart';
-import 'package:provider/provider.dart';
-
 class ChatWidgets extends StatefulWidget {
-  final VoidCallback changeAppTheme;
-  final bool isDark;
-  final double bottomInset;
-  final double topPadding;
-  final VoidCallback toggleMenuCallback;
-  final Database db;
-
   const ChatWidgets({
     super.key,
     required this.isDark,
@@ -26,6 +20,13 @@ class ChatWidgets extends StatefulWidget {
     required this.topPadding,
     required this.db,
   });
+
+  final VoidCallback changeAppTheme;
+  final bool isDark;
+  final double bottomInset;
+  final double topPadding;
+  final VoidCallback toggleMenuCallback;
+  final Database db;
 
   @override
   State<ChatWidgets> createState() => _ChatWidgets();
@@ -51,7 +52,10 @@ class _ChatWidgets extends State<ChatWidgets> {
     final appState = Provider.of<LoadChatMessages>(context);
     chatId = appState.chatId;
     chatName = appState.chatName;
-    _loadMessages();
+    messages = appState.messages;
+    if (chatId != 0) {
+      _loadMessages();
+    }
   }
 
   Future<void> _loadMessages() async {
@@ -61,17 +65,17 @@ class _ChatWidgets extends State<ChatWidgets> {
     });
   }
 
-  void submitUserMessage(String message) async {
+  Future<void> submitUserMessage(String message) async {
     if (chatName != '') {
       await messageRep.addMessage(
           chatId: chatId, message: message, isBot: false);
-      _loadMessages();
+      await _loadMessages();
     } else {
-      String name = '---test name---';
-      int id = await chatRep.createChat(name);
+      const String name = '---test name---';
+      final int id = await chatRep.createChat(name);
       await messageRep.addMessage(chatId: id, message: message, isBot: false);
       final chatList = await chatRep.getChats();
-      List<Map<String, dynamic>> listOfChats = chatList.reversed.toList();
+      final List<Map<String, dynamic>> listOfChats = chatList.reversed.toList();
       if (mounted) {
         Provider.of<LoadChats>(context, listen: false)
             .updateListOfChats(listOfChats: listOfChats);
@@ -79,8 +83,11 @@ class _ChatWidgets extends State<ChatWidgets> {
             .transferLoadingData(
           chatId: id,
           chatName: name,
+          messages: messages,
         );
-        _loadMessages();
+        if (chatId != 0) {
+          await _loadMessages();
+        }
       }
     }
   }

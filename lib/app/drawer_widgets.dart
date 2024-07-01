@@ -1,14 +1,13 @@
-import 'package:flutter/material.dart';
 import 'dart:core';
-import 'package:sqflite/sqflite.dart';
-import 'package:chat_gpt_client_app/chat_repository.dart';
+
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:chat_gpt_client_app/app_states.dart';
+import 'package:sqflite/sqflite.dart';
+
+import '../app_states.dart';
+import '../chat_repository.dart';
 
 class DrawerWidgets extends StatefulWidget {
-  final double parentHeight;
-  final Database db;
-  final VoidCallback toggleMenu;
 
   const DrawerWidgets({
     super.key,
@@ -16,6 +15,9 @@ class DrawerWidgets extends StatefulWidget {
     required this.db,
     required this.toggleMenu,
   });
+  final double parentHeight;
+  final Database db;
+  final VoidCallback toggleMenu;
 
   @override
   State<DrawerWidgets> createState() => _MyDrawerWidgets();
@@ -37,28 +39,33 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
         .updateListOfChats(listOfChats: chatList.reversed.toList());
   }
 
-  Future<void> _addChat() async {
-    final chatNameController = TextEditingController();
-    await showDialog(
+  Future<void> _openSettings() async {
+    await showDialog<void>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Add Chat'),
-          content: TextField(
-            controller: chatNameController,
-            decoration: const InputDecoration(hintText: 'Chat Name'),
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          title: Text('Settings',
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary
+            ),
+          ),
+          content: Text('Some settings',
+            style: TextStyle(
+                color: Theme.of(context).colorScheme.primary
+            ),
           ),
           actions: [
             TextButton(
-              onPressed: () async {
-                if (chatNameController.text.isNotEmpty) {
-                  String chatName = chatNameController.text;
-                  Navigator.of(context).pop();
-                  await chatRep.createChat(chatName);
-                  _loadChats();
-                }
+              onPressed: () {
+                Navigator.of(context).pop();
               },
-              child: const Text('Add'),
+              child: Text(
+                'Close',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary
+                ),
+              ),
             ),
           ],
         );
@@ -92,7 +99,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: _openSettings,
                     icon: const Icon(Icons.settings_rounded),
                     style: ButtonStyle(
                       iconColor: MaterialStateProperty.all(
@@ -119,10 +126,13 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                   : 320),
               child: TextButton(
                 onPressed: () {
-                  Provider.of<LoadChatMessages>(context, listen: false).transferLoadingData(
-                    chatId: -1,
+                  Provider.of<LoadChatMessages>(context, listen: false)
+                      .transferLoadingData(
+                    chatId: 0,
                     chatName: '',
+                    messages: [],
                   );
+                  widget.toggleMenu();
                 },
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -132,7 +142,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                       width: 5,
                     ),
                     Text(
-                      "Add a new chat",
+                      'Add a new chat',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.primary,
                         fontSize: 18,
@@ -163,6 +173,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                       .transferLoadingData(
                                     chatId: listOfChats[index]['chat_id'],
                                     chatName: listOfChats[index]['name'],
+                                    messages: [],
                                   );
                                 },
                                 style: ButtonStyle(
@@ -180,7 +191,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                 ),
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 0, horizontal: 10),
+                                      horizontal: 10),
                                   title: Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,

@@ -1,17 +1,17 @@
-import 'package:flutter/material.dart';
 import 'dart:core';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class InputMenuWidgets extends StatefulWidget {
-  final double parentWidth;
-  final Function(String) submitUserMessage;
 
   const InputMenuWidgets({
     super.key,
     required this.parentWidth,
     required this.submitUserMessage,
   });
+  final double parentWidth;
+  final void Function(String) submitUserMessage;
 
   @override
   State<InputMenuWidgets> createState() => _InputMenuWidgets();
@@ -28,8 +28,8 @@ class _InputMenuWidgets extends State<InputMenuWidgets> {
 
   @override
   void dispose() {
-    _textEditingController.removeListener(_textFieldWasUpdated);
-    _textEditingController.dispose();
+    _textEditingController..removeListener(_textFieldWasUpdated)
+    ..dispose();
     super.dispose();
   }
 
@@ -71,7 +71,6 @@ class _InputMenuWidgets extends State<InputMenuWidgets> {
                         TextStyle(color: Theme.of(context).colorScheme.primary),
                     controller: _textEditingController,
                     textInputAction: TextInputAction.newline,
-                    clipBehavior: Clip.hardEdge,
                     maxLines: 6,
                     minLines: 1,
                     keyboardType: TextInputType.multiline,
@@ -127,7 +126,7 @@ class SendAction extends Action<SendIntent> {
   SendAction(this.controller, this.submitUserMessage);
 
   final TextEditingController controller;
-  Function(String) submitUserMessage;
+  void Function(String) submitUserMessage;
   String submittedText = '';
 
   @override
