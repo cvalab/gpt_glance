@@ -114,33 +114,51 @@ class _ChatWidgets extends State<ChatWidgets> {
                   slivers: [
                     SliverList(
                       delegate: SliverChildBuilderDelegate(
-                        (context, index) {
-                          return ListTile(
-                            title: Text(
-                              'You',
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.primary,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            (context, index) {
+                          return Align(
+                            alignment: messages[index]['is_bot'] == 0
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.only(
+                                left: messages[index]['is_bot'] == 0 ? 40.0 : 5.0,
+                                right: messages[index]['is_bot'] == 1 ? 40.0 : 5.0,
                               ),
-                            ),
-                            subtitle: Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .tertiaryContainer,
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Text(
-                                messages[index]['text'],
-                                style: TextStyle(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontSize: 18,
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  maxWidth: MediaQuery.of(context).size.width * 0.85,
+                                ),
+                                child: Card(
+                                  color: Theme.of(context).colorScheme.tertiaryContainer,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          messages[index]['text'],
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        Text(
+                                          messages[index]['time'],
+                                          style: TextStyle(
+                                            color: Theme.of(context).colorScheme.primary,
+                                            fontSize: 13,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                            minVerticalPadding: 10,
                           );
                         },
                         childCount: messages.length,
