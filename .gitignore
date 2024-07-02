@@ -42,3 +42,7 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /lib/exemple.dart
+/.fvm/flutter_sdk/
+/.fvm/flutter_sdk/
+/.fvm/flutter_sdk/
+/.fvm/flutter_sdk/
