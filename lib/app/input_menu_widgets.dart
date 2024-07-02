@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class InputMenuWidgets extends StatefulWidget {
-
   const InputMenuWidgets({
     super.key,
     required this.parentWidth,
     required this.submitUserMessage,
   });
+
   final double parentWidth;
   final void Function(String) submitUserMessage;
 
@@ -28,8 +28,9 @@ class _InputMenuWidgets extends State<InputMenuWidgets> {
 
   @override
   void dispose() {
-    _textEditingController..removeListener(_textFieldWasUpdated)
-    ..dispose();
+    _textEditingController
+      ..removeListener(_textFieldWasUpdated)
+      ..dispose();
     super.dispose();
   }
 
@@ -67,8 +68,10 @@ class _InputMenuWidgets extends State<InputMenuWidgets> {
               children: [
                 Expanded(
                   child: TextField(
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    cursorColor: Theme.of(context).colorScheme.primary,
                     controller: _textEditingController,
                     textInputAction: TextInputAction.newline,
                     maxLines: 6,
