@@ -1,7 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 
 class ChatRepository {
-
   ChatRepository(this.db);
   final Database db;
 
@@ -24,7 +23,26 @@ class ChatRepository {
     await db.execute(messageTable);
   }
 
-  Future<List<Map<String, dynamic>>> getChats(){
+  Future<List<Map<String, dynamic>>> getChats() {
     return db.query('chat_table');
+  }
+
+  Future<void> renameChat(int chatId, String newName) async {
+    await db.update(
+      'chat_table',
+      {'name': newName},
+      where: 'chat_id = ?',
+      whereArgs: [chatId],
+    );
+  }
+
+  Future<void> deleteChat(int chatId) async {
+    await db.delete(
+      'chat_table',
+      where: 'chat_id = ?',
+      whereArgs: [chatId],
+    );
+    final tableName = 'message_table_$chatId';
+    await db.execute('DROP TABLE IF EXISTS $tableName');
   }
 }
