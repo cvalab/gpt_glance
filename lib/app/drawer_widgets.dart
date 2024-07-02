@@ -122,6 +122,13 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
 
   Future<void> _deleteChat(int chatId) async {
     await chatRep.deleteChat(chatId);
+    Provider.of<LoadChatMessages>(context,
+        listen: false)
+        .transferLoadingData(
+      chatId: 0,
+      chatName: '',
+      messages: [],
+    );
     await _loadChats();
   }
 
