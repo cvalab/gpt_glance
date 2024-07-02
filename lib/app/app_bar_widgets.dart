@@ -43,6 +43,7 @@ class _AppBarState extends State<AppBarWidget> {
                 color: Theme.of(context).colorScheme.primary,
                 fontSize: 18,
                 fontWeight: FontWeight.w500,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ),
