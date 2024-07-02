@@ -8,7 +8,6 @@ import '../app_states.dart';
 import '../chat_repository.dart';
 
 class DrawerWidgets extends StatefulWidget {
-
   const DrawerWidgets({
     super.key,
     required this.parentHeight,
@@ -45,15 +44,13 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
       builder: (context) {
         return AlertDialog(
           backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
-          title: Text('Settings',
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.primary
-            ),
+          title: Text(
+            'Settings',
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
-          content: Text('Some settings',
-            style: TextStyle(
-                color: Theme.of(context).colorScheme.primary
-            ),
+          content: Text(
+            'Some settings',
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
           actions: [
             TextButton(
@@ -62,15 +59,63 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
               },
               child: Text(
                 'Close',
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.primary),
               ),
             ),
           ],
         );
       },
     );
+  }
+
+  Future<void> _renameChat(int chatId, String currentName) async {
+    final TextEditingController controller = TextEditingController(text: currentName);
+    await showDialog<void>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: Theme.of(context).colorScheme.tertiaryContainer,
+          title: Text('Rename Chat', style: TextStyle(color: Theme.of(context).colorScheme.primary),),
+          content: TextField(
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            cursorColor: Theme.of(context).colorScheme.primary,
+            controller: controller,
+            decoration: InputDecoration(
+              hintText: 'New chat name',
+              hintStyle: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () async {
+                final newName = controller.text;
+                if (newName.isNotEmpty) {
+                  await chatRep.renameChat(chatId, newName);
+                  await _loadChats();
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Rename'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteChat(int chatId) async {
+    await chatRep.deleteChat(chatId);
+    await _loadChats();
   }
 
   @override
@@ -85,14 +130,14 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
         height: widget.parentHeight,
         child: Column(
           children: [
-            //header + settings
+            // header + settings
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 6),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'ChatGPT-4 client',
+                    'ChatGPT client',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.primary,
                       fontSize: 22,
@@ -160,7 +205,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                 slivers: [
                   SliverList(
                     delegate: SliverChildBuilderDelegate(
-                      (context, index) {
+                          (context, index) {
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 5),
                           child: Column(
@@ -169,7 +214,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                 onPressed: () {
                                   widget.toggleMenu();
                                   Provider.of<LoadChatMessages>(context,
-                                          listen: false)
+                                      listen: false)
                                       .transferLoadingData(
                                     chatId: listOfChats[index]['chat_id'],
                                     chatName: listOfChats[index]['name'],
@@ -186,15 +231,15 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                   ),
                                   shape: MaterialStateProperty.all(
                                       RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  )),
+                                        borderRadius: BorderRadius.circular(10),
+                                      )),
                                 ),
                                 child: ListTile(
                                   contentPadding: const EdgeInsets.symmetric(
                                       horizontal: 10),
                                   title: Row(
                                     mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
+                                    MainAxisAlignment.spaceBetween,
                                     children: [
                                       Flexible(
                                         child: Text(
@@ -210,7 +255,33 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                       ),
                                       IconButton(
                                         padding: EdgeInsets.zero,
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          showModalBottomSheet<void>(
+                                            context: context,
+                                            builder: (BuildContext context) {
+                                              return Wrap(
+                                                children: <Widget>[
+                                                  ListTile(
+                                                    leading: Icon(Icons.edit, color: Theme.of(context).colorScheme.secondary,),
+                                                    title: Text('Rename Chat', style: TextStyle(color: Theme.of(context).colorScheme.secondary),),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      _renameChat(listOfChats[index]['chat_id'], listOfChats[index]['name']);
+                                                    },
+                                                  ),
+                                                  ListTile(
+                                                    leading: Icon(Icons.delete, color: Theme.of(context).colorScheme.secondary,),
+                                                    title: Text('Delete Chat', style: TextStyle(color: Theme.of(context).colorScheme.secondary),),
+                                                    onTap: () {
+                                                      Navigator.pop(context);
+                                                      _deleteChat(listOfChats[index]['chat_id']);
+                                                    },
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          );
+                                        },
                                         icon: const Icon(Icons.more_vert_sharp),
                                         style: ButtonStyle(
                                           iconColor: MaterialStateProperty.all(
@@ -218,7 +289,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                                   .colorScheme
                                                   .primary),
                                           iconSize:
-                                              MaterialStateProperty.all(30),
+                                          MaterialStateProperty.all(30),
                                         ),
                                       ),
                                     ],
