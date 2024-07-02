@@ -102,6 +102,13 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                 if (newName.isNotEmpty) {
                   await chatRep.renameChat(chatId, newName);
                   await _loadChats();
+                  Provider.of<LoadChatMessages>(context,
+                      listen: false)
+                      .transferLoadingData(
+                    chatId: chatId,
+                    chatName: newName,
+                    messages: [],
+                  );
                   Navigator.of(context).pop();
                 }
               },
