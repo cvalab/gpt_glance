@@ -108,6 +108,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                     chatId: chatId,
                     chatName: newName,
                     messages: [],
+                    isRenamed: 1,
                   );
                   Navigator.of(context).pop();
                 }
@@ -128,6 +129,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
       chatId: 0,
       chatName: '',
       messages: [],
+      isRenamed: 0,
     );
     await _loadChats();
   }
@@ -190,6 +192,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                     chatId: 0,
                     chatName: '',
                     messages: [],
+                    isRenamed: 0,
                   );
                   widget.toggleMenu();
                 },
@@ -233,6 +236,7 @@ class _MyDrawerWidgets extends State<DrawerWidgets> {
                                     chatId: listOfChats[index]['chat_id'],
                                     chatName: listOfChats[index]['name'],
                                     messages: [],
+                                    isRenamed: listOfChats[index]['isRenamed'],
                                   );
                                 },
                                 style: ButtonStyle(
