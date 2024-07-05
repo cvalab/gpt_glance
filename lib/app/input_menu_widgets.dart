@@ -1,5 +1,4 @@
 import 'dart:core';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -11,7 +10,7 @@ class InputMenuWidgets extends StatefulWidget {
   });
 
   final double parentWidth;
-  final void Function(String) submitUserMessage;
+  final Future<void> Function(String) submitUserMessage;
 
   @override
   State<InputMenuWidgets> createState() => _InputMenuWidgets();
@@ -38,17 +37,23 @@ class _InputMenuWidgets extends State<InputMenuWidgets> {
     setState(() {});
   }
 
+  Future<void> _sendMessage() async {
+    final message = _textEditingController.text.trim();
+    _textEditingController.clear();
+    if (message.isNotEmpty) {
+      await widget.submitUserMessage(message);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Shortcuts(
       shortcuts: <LogicalKeySet, Intent>{
-        LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.enter):
-            const SendIntent(),
+        LogicalKeySet(LogicalKeyboardKey.shift, LogicalKeyboardKey.enter): const SendIntent(),
       },
       child: Actions(
         actions: <Type, Action<Intent>>{
-          SendIntent:
-              SendAction(_textEditingController, widget.submitUserMessage),
+          SendIntent: SendAction(_textEditingController, _sendMessage),
         },
         child: Builder(builder: (context) {
           return Container(
@@ -96,20 +101,21 @@ class _InputMenuWidgets extends State<InputMenuWidgets> {
                   width: 5,
                 ),
                 IconButton(
-                  onPressed:
-                      Actions.handler<SendIntent>(context, const SendIntent()),
+                  onPressed: Actions.handler<SendIntent>(context, const SendIntent()),
                   icon: const Icon(Icons.arrow_upward),
                   iconSize: 30,
                   style: ButtonStyle(
-                    backgroundColor: _textEditingController.text.isNotEmpty
-                        ? MaterialStateProperty.resolveWith(
-                            (states) => Theme.of(context).colorScheme.primary)
-                        : MaterialStateProperty.resolveWith(
-                            (states) => Theme.of(context).colorScheme.outline),
+                    backgroundColor: MaterialStateProperty.resolveWith(
+                          (states) => _textEditingController.text.isNotEmpty
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.outline,
+                    ),
                     shape: MaterialStateProperty.resolveWith(
-                        (states) => const CircleBorder()),
-                    iconColor: MaterialStateProperty.resolveWith((states) =>
-                        Theme.of(context).colorScheme.inversePrimary),
+                          (states) => const CircleBorder(),
+                    ),
+                    iconColor: MaterialStateProperty.resolveWith(
+                          (states) => Theme.of(context).colorScheme.inversePrimary,
+                    ),
                   ),
                 ),
               ],
@@ -126,18 +132,15 @@ class SendIntent extends Intent {
 }
 
 class SendAction extends Action<SendIntent> {
-  SendAction(this.controller, this.submitUserMessage);
+  SendAction(this.controller, this.sendMessage);
 
   final TextEditingController controller;
-  void Function(String) submitUserMessage;
-  String submittedText = '';
+  final Future<void> Function() sendMessage;
 
   @override
   Object? invoke(covariant SendIntent intent) {
     if (controller.text.isNotEmpty) {
-      submittedText = controller.text.trim();
-      controller.clear();
-      submitUserMessage(submittedText);
+      sendMessage();
     }
     return null;
   }
