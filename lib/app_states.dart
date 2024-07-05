@@ -4,6 +4,7 @@ class LoadChatMessages extends ChangeNotifier {
   int _chatId = 0;
   String _chatName = '';
   List<Map<String, dynamic>> _messages = [];
+  bool _isRenamed = false;
 
   int get chatId => _chatId;
 
@@ -11,14 +12,18 @@ class LoadChatMessages extends ChangeNotifier {
 
   List<Map<String, dynamic>> get messages => _messages;
 
+  bool get isRenamed => _isRenamed;
+
   void transferLoadingData({
     required int chatId,
     required String chatName,
     required List<Map<String, dynamic>> messages,
+    required int isRenamed,
   }) {
     _chatName = chatName;
     _chatId = chatId;
     _messages = messages;
+    _isRenamed = (isRenamed == 0);
     notifyListeners();
   }
 }
