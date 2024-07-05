@@ -7,7 +7,7 @@ class ChatGptApiService {
 
   Future<String> sendMessage(String message) async {
     final response = await OpenAI.instance.chat.create(
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-3.5-turbo-0125',
       messages: [
         OpenAIChatCompletionChoiceMessageModel(
           role: OpenAIChatMessageRole.user,
