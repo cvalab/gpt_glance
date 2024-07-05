@@ -18,6 +18,7 @@ class ChatDatabase {
   Future<Database> _initDB(String filePath) async {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
+    print(path);
 
     return openDatabase(path, version: 1, onCreate: _createDB);
   }
@@ -26,7 +27,8 @@ class ChatDatabase {
     const chatTable = '''
     CREATE TABLE chat_table (
       chat_id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL
+      name TEXT NOT NULL,
+      isRenamed INTEGER
     );
     ''';
 
