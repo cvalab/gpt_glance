@@ -5,7 +5,7 @@ class ChatRepository {
   final Database db;
 
   Future<int> createChat(String name) async {
-    final id = await db.insert('chat_table', {'name': name});
+    final id = await db.insert('chat_table', {'name': name, 'isRenamed': 0});
     await _createMessageTableForChat(id);
     return id;
   }
@@ -30,7 +30,7 @@ class ChatRepository {
   Future<void> renameChat(int chatId, String newName) async {
     await db.update(
       'chat_table',
-      {'name': newName},
+      {'name': newName, 'isRenamed': 1},
       where: 'chat_id = ?',
       whereArgs: [chatId],
     );
