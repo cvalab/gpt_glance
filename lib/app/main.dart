@@ -6,8 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
+import '../api_service.dart';
 import '../app_states.dart';
 import '../database.dart';
+import '../env/env.dart';
 import 'app_themes.dart';
 import 'chat_widgets.dart';
 import 'drawer_widgets.dart';
@@ -21,15 +23,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final database = await ChatDatabase.instance.database;
 
+  const apiKey = Env.apiKey;
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => LoadChatMessages()),
         ChangeNotifierProvider(create: (_) => LoadChats()),
+        ChangeNotifierProvider(create: (_) => LoadChatMessages()),
+        Provider(create: (_) => ChatGptApiService(apiKey: apiKey)),
       ],
-      child: MyApp(
-        db: database,
-      ),
+      child: MyApp(db: database),
     ),
   );
 }
@@ -39,7 +42,6 @@ bool isDesktop() {
 }
 
 class MyApp extends StatefulWidget {
-
   const MyApp({super.key, required this.db});
   final Database db;
 
@@ -58,32 +60,26 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  // bool appTheme = true;
-  // void changeAppTheme() {
-  //   setState(() {
-  //     appTheme = appTheme == true ? false : true;
-  //   });
-  // }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<bool>(
-        future: loadSnapshot(),
-        builder: (context, snapshot) {
-          isDark = snapshot.data ?? false;
-          return MaterialApp(
-            title: 'GPT client',
-            theme: ThemeData(
-              colorScheme: AppThemes.getColorScheme(appTheme: isDark),
-              useMaterial3: true,
-            ),
-            home: HomePage(
-              changeAppTheme: changeAppTheme,
-              isDark: isDark,
-              db: widget.db,
-            ),
-          );
-        });
+      future: loadSnapshot(),
+      builder: (context, snapshot) {
+        isDark = snapshot.data ?? false;
+        return MaterialApp(
+          title: 'GPT client',
+          theme: ThemeData(
+            colorScheme: AppThemes.getColorScheme(appTheme: isDark),
+            useMaterial3: true,
+          ),
+          home: HomePage(
+            changeAppTheme: changeAppTheme,
+            isDark: isDark,
+            db: widget.db,
+          ),
+        );
+      },
+    );
   }
 
   Future<bool>? loadSnapshot() async {
@@ -93,12 +89,13 @@ class _MyAppState extends State<MyApp> {
 }
 
 class HomePage extends StatefulWidget {
+  const HomePage({
+    super.key,
+    required this.changeAppTheme,
+    required this.isDark,
+    required this.db,
+  });
 
-  const HomePage(
-      {super.key,
-      required this.changeAppTheme,
-      required this.isDark,
-      required this.db});
   final Database db;
   final VoidCallback changeAppTheme;
   final bool isDark;
@@ -122,51 +119,51 @@ class _HomePageState extends State<HomePage> {
     final double topPadding = MediaQuery.of(context).viewPadding.top;
 
     return Scaffold(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        extendBodyBehindAppBar: true,
-        body: SafeArea(
-          child: Stack(
-            children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 200),
-                left: _isMenuOpen
-                    ? (MediaQuery.of(context).size.width * 0.87 <= 350
-                        ? MediaQuery.of(context).size.width * 0.87
-                        : 350)
-                    : 0,
-                child: ChatWidgets(
-                  changeAppTheme: widget.changeAppTheme,
-                  isDark: widget.isDark,
-                  toggleMenuCallback: _toggleMenu,
-                  bottomInset: bottomInset,
-                  topPadding: topPadding,
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      extendBodyBehindAppBar: true,
+      body: SafeArea(
+        child: Stack(
+          children: [
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 200),
+              left: _isMenuOpen
+                  ? (MediaQuery.of(context).size.width * 0.87 <= 350
+                  ? MediaQuery.of(context).size.width * 0.87
+                  : 350)
+                  : 0,
+              child: ChatWidgets(
+                changeAppTheme: widget.changeAppTheme,
+                isDark: widget.isDark,
+                toggleMenuCallback: _toggleMenu,
+                bottomInset: bottomInset,
+                topPadding: topPadding,
+                db: widget.db,
+              ),
+            ),
+            AnimatedPositioned(
+              duration: const Duration(milliseconds: 200),
+              left: _isMenuOpen
+                  ? 0
+                  : -1 *
+                  (MediaQuery.of(context).size.width * 0.87 <= 350
+                      ? MediaQuery.of(context).size.width * 0.87
+                      : 350),
+              child: GestureDetector(
+                onHorizontalDragEnd: (details) {
+                  if (details.velocity.pixelsPerSecond.dx < 0 && _isMenuOpen) {
+                    _toggleMenu();
+                  }
+                },
+                child: DrawerWidgets(
+                  parentHeight: MediaQuery.of(context).size.height,
                   db: widget.db,
+                  toggleMenu: _toggleMenu,
                 ),
               ),
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 200),
-                left: _isMenuOpen
-                    ? 0
-                    : -1 *
-                        (MediaQuery.of(context).size.width * 0.87 <= 350
-                            ? MediaQuery.of(context).size.width * 0.87
-                            : 350),
-                child: GestureDetector(
-                  onHorizontalDragEnd: (details) {
-                    if (details.velocity.pixelsPerSecond.dx < 0 &&
-                        _isMenuOpen) {
-                      _toggleMenu();
-                    }
-                  },
-                  child: DrawerWidgets(
-                    parentHeight: MediaQuery.of(context).size.height,
-                    db: widget.db,
-                    toggleMenu: _toggleMenu,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
